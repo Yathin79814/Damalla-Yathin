@@ -1,4 +1,4 @@
-export const FRAME_COUNT = 240;
+export const FRAME_COUNT = 120;
 
 export const preloadImages = (): HTMLImageElement[] => {
   if (typeof window === "undefined") return [];

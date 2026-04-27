@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import Image from "next/image";
 import { useScrollFrames } from "@/lib/useScrollFrames";
 import { preloadImages, FRAME_COUNT } from "@/lib/preloadImages";
 import { useMotionValueEvent } from "framer-motion";
@@ -10,6 +11,7 @@ export const ScrollyCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const [firstFrameDrawn, setFirstFrameDrawn] = useState(false);
   
   const { scrollYProgress, frameIndex } = useScrollFrames(containerRef, FRAME_COUNT);
 
@@ -48,6 +50,10 @@ export const ScrollyCanvas = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+      
+      if (!firstFrameDrawn) {
+        setFirstFrameDrawn(true);
+      }
     };
 
     if (img.complete) {
@@ -77,7 +83,15 @@ export const ScrollyCanvas = () => {
   return (
     <div id="home" ref={containerRef} className="relative h-[500vh] w-full bg-[#121212]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <canvas ref={canvasRef} className="w-full h-full" />
+        {/* Prioritize the first frame for immediate loading before the canvas is ready */}
+        <Image
+          src="/sequence/ezgif-frame-001.png"
+          alt="Hero background"
+          fill
+          priority
+          className={`object-cover object-center transition-opacity duration-300 ${firstFrameDrawn ? 'opacity-0' : 'opacity-100'}`}
+        />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
         <div className="absolute inset-0 bg-black/40" />
         <Overlay scrollYProgress={scrollYProgress} />
       </div>
